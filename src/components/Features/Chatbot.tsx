@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar } from '@/components/ui/avatar';
-import { Bot, Send, User, Mic, MicOff } from 'lucide-react';
+import { Bot, Send, User, Mic, MicOff, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface Message {

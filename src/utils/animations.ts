@@ -9,7 +9,9 @@ type AnimationVariant =
   | 'slideInLeft'
   | 'slideInRight'
   | 'bounce'
-  | 'pulse';
+  | 'pulse'
+  | 'rotate3d'
+  | 'float3d';
 
 interface AnimationProps {
   variant: AnimationVariant;
@@ -34,6 +36,8 @@ export const getAnimationClasses = ({
     slideInRight: 'translate-x-[20px] animate-fadeIn',
     bounce: 'animate-bounce',
     pulse: 'animate-pulse',
+    rotate3d: 'animate-rotate3d',
+    float3d: 'animate-float3d',
   };
 
   const styles = cn(
@@ -51,3 +55,12 @@ export const staggeredChildClasses = (index: number, baseDelay: number = 100) =>
   const delay = baseDelay * index;
   return `opacity-0 animate-fadeIn` + (delay ? ` [animation-delay:${delay}ms]` : '');
 };
+
+// 3D animation classes
+export const perspective3dClasses = "perspective-1000";
+export const transform3dClasses = "transform-3d";
+export const rotate3dClasses = "rotate3d";
+
+// Theme transition classes
+export const themeTransitionClasses = "transition-colors duration-300";
+
