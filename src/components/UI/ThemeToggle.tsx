@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Sun, Moon, Laptop } from 'lucide-react';
+import { Sun, Moon, Laptop, Gavel, Scale } from 'lucide-react';
 import { useTheme } from './ThemeProvider';
 
 export const ThemeToggle: React.FC = () => {
@@ -15,6 +15,8 @@ export const ThemeToggle: React.FC = () => {
           {theme === 'light' && <Sun className="h-4 w-4" />}
           {theme === 'dark' && <Moon className="h-4 w-4" />}
           {theme === 'system' && <Laptop className="h-4 w-4" />}
+          {theme === 'legal-gold' && <Gavel className="h-4 w-4" />}
+          {theme === 'legal-blue' && <Scale className="h-4 w-4" />}
           <span className="sr-only">Toggle theme</span>
         </Button>
       </DropdownMenuTrigger>
@@ -27,6 +29,14 @@ export const ThemeToggle: React.FC = () => {
           <Moon className="h-4 w-4" />
           <span>Dark</span>
         </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme('legal-gold')} className="flex items-center gap-2">
+          <Gavel className="h-4 w-4" />
+          <span>Legal Gold</span>
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme('legal-blue')} className="flex items-center gap-2">
+          <Scale className="h-4 w-4" />
+          <span>Legal Blue</span>
+        </DropdownMenuItem>
         <DropdownMenuItem onClick={() => setTheme('system')} className="flex items-center gap-2">
           <Laptop className="h-4 w-4" />
           <span>System</span>
@@ -35,4 +45,3 @@ export const ThemeToggle: React.FC = () => {
     </DropdownMenu>
   );
 };
-

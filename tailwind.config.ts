@@ -2,7 +2,7 @@
 import type { Config } from "tailwindcss";
 
 const config = {
-  darkMode: ["class"],
+  darkMode: ["class", ".dark"],
   content: [
     './pages/**/*.{ts,tsx}',
     './components/**/*.{ts,tsx}',
@@ -20,9 +20,11 @@ const config = {
     },
     extend: {
       fontFamily: {
-        sans: ['Inter', 'sans-serif'],
-        serif: ['Georgia', 'serif'],
+        sans: ['Inter var', 'Inter', 'sans-serif'],
+        serif: ['Crimson Pro', 'Georgia', 'serif'],
         mono: ['Roboto Mono', 'monospace'],
+        legal: ['Cormorant Garamond', 'Times New Roman', 'serif'],
+        display: ['Playfair Display', 'serif'],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -65,6 +67,21 @@ const config = {
           accent: "#8B5CF6",
           background: "#F9FAFB",
           foreground: "#111827",
+          gold: {
+            light: "#FEF3C7",
+            DEFAULT: "#D97706",
+            dark: "#92400E",
+          },
+          blue: {
+            light: "#DBEAFE",
+            DEFAULT: "#2563EB",
+            dark: "#1E40AF",
+          },
+          red: {
+            light: "#FEE2E2",
+            DEFAULT: "#DC2626",
+            dark: "#991B1B",
+          }
         },
       },
       borderRadius: {
@@ -74,12 +91,12 @@ const config = {
       },
       keyframes: {
         "accordion-down": {
-          from: { height: 0 },
+          from: { height: "0" },
           to: { height: "var(--radix-accordion-content-height)" },
         },
         "accordion-up": {
           from: { height: "var(--radix-accordion-content-height)" },
-          to: { height: 0 },
+          to: { height: "0" },
         },
         fadeIn: {
           "0%": { opacity: "0" },
@@ -105,6 +122,23 @@ const config = {
           "0%": { transform: "translateZ(-20px)", opacity: "0" },
           "100%": { transform: "translateZ(0)", opacity: "1" },
         },
+        "gavel-tap": {
+          "0%, 20%, 100%": { transform: "rotate(0deg)" },
+          "10%": { transform: "rotate(-15deg)" },
+        },
+        "document-flip": {
+          "0%": { transform: "rotateY(180deg)", opacity: "0" },
+          "100%": { transform: "rotateY(0deg)", opacity: "1" },
+        },
+        "law-scale": {
+          "0%, 100%": { transform: "scale(1) rotate(0deg)" },
+          "50%": { transform: "scale(1.03) rotate(2deg)" },
+        },
+        "modal-popup": {
+          "0%": { transform: "scale(0.95)", opacity: "0" },
+          "70%": { transform: "scale(1.02)", opacity: "1" },
+          "100%": { transform: "scale(1)", opacity: "1" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -115,6 +149,10 @@ const config = {
         "pulse-subtle": "pulse-subtle 2s infinite ease-in-out",
         "rotate3d": "rotate3d 0.7s ease-out forwards",
         "float3d": "float3d 0.7s ease-out forwards",
+        "gavel-tap": "gavel-tap 1.5s infinite ease-in-out",
+        "document-flip": "document-flip 0.6s ease-out forwards",
+        "law-scale": "law-scale 3s infinite ease-in-out",
+        "modal-popup": "modal-popup 0.4s ease-out forwards",
       },
       // 3D transformation classes
       transformStyle: {
@@ -122,12 +160,15 @@ const config = {
       },
       perspective: {
         "1000": "1000px",
+        "2000": "2000px",
       },
       rotateX: {
         "45": "45deg",
       },
       rotateY: {
+        "45": "45deg",
         "90": "90deg",
+        "180": "180deg",
       },
       translateZ: {
         "20": "20px",

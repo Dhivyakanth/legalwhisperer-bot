@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar } from '@/components/ui/avatar';
-import { Bot, Send, User, Mic, MicOff, X } from 'lucide-react';
+import { Bot, Send, User, Mic, MicOff, X, MessageSquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface Message {
@@ -15,9 +15,10 @@ interface Message {
 
 interface ChatbotProps {
   className?: string;
+  fullscreen?: boolean;
 }
 
-const Chatbot: React.FC<ChatbotProps> = ({ className }) => {
+const Chatbot: React.FC<ChatbotProps> = ({ className, fullscreen = false }) => {
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [isOpen, setIsOpen] = useState(false);
@@ -171,43 +172,188 @@ const Chatbot: React.FC<ChatbotProps> = ({ className }) => {
     setIsOpen(!isOpen);
   };
 
+  // If in fullscreen mode, render only the chat interface
+  if (fullscreen) {
+    return (
+      <div className={cn("flex flex-col h-full", className)}>
+        {/* Chat messages */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          {messages.map((message) => (
+            <div 
+              key={message.id} 
+              className={cn(
+                "flex",
+                message.sender === 'user' ? "justify-end" : "justify-start"
+              )}
+            >
+              <div 
+                className={cn(
+                  "max-w-[80%] rounded-lg p-3",
+                  message.sender === 'user' 
+                    ? "bg-indigo-600 text-white rounded-br-none dark:bg-indigo-500 legal-gold:bg-amber-600 legal-blue:bg-blue-600" 
+                    : "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-bl-none legal-gold:bg-amber-100 legal-gold:text-amber-900 legal-blue:bg-blue-100 legal-blue:text-blue-900"
+                )}
+              >
+                <div className="flex items-start">
+                  {message.sender === 'bot' && (
+                    <Avatar className="h-6 w-6 mr-2 mt-0.5 bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-300 legal-gold:bg-amber-100 legal-gold:text-amber-600 legal-blue:bg-blue-100 legal-blue:text-blue-600">
+                      <Bot size={14} />
+                    </Avatar>
+                  )}
+                  <div>
+                    <p className={cn(
+                      "text-sm",
+                      message.sender === 'user' ? "text-white" : "text-gray-900 dark:text-gray-100 legal-gold:text-amber-900 legal-blue:text-blue-900"
+                    )}>
+                      {message.text}
+                    </p>
+                    <span className={cn(
+                      "text-xs mt-1 block",
+                      message.sender === 'user' ? "text-indigo-200 dark:text-indigo-100 legal-gold:text-amber-200 legal-blue:text-blue-200" : "text-gray-500 dark:text-gray-400 legal-gold:text-amber-500 legal-blue:text-blue-500"
+                    )}>
+                      {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  </div>
+                  {message.sender === 'user' && (
+                    <Avatar className="h-6 w-6 ml-2 mt-0.5 bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-300 legal-gold:bg-amber-100 legal-gold:text-amber-600 legal-blue:bg-blue-100 legal-blue:text-blue-600">
+                      <User size={14} />
+                    </Avatar>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+          
+          {isBotTyping && (
+            <div className="flex justify-start">
+              <div className="bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg rounded-bl-none p-3 max-w-[80%] legal-gold:bg-amber-100 legal-gold:text-amber-900 legal-blue:bg-blue-100 legal-blue:text-blue-900">
+                <div className="flex items-center space-x-2">
+                  <Avatar className="h-6 w-6 bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-300 legal-gold:bg-amber-100 legal-gold:text-amber-600 legal-blue:bg-blue-100 legal-blue:text-blue-600">
+                    <Bot size={14} />
+                  </Avatar>
+                  <div className="flex space-x-1">
+                    <div className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce legal-gold:bg-amber-400 legal-blue:bg-blue-400" style={{ animationDelay: '0ms' }}></div>
+                    <div className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce legal-gold:bg-amber-400 legal-blue:bg-blue-400" style={{ animationDelay: '150ms' }}></div>
+                    <div className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce legal-gold:bg-amber-400 legal-blue:bg-blue-400" style={{ animationDelay: '300ms' }}></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          <div ref={messagesEndRef} />
+        </div>
+
+        {/* Chat input */}
+        <div className="p-4 border-t border-gray-200 dark:border-gray-800 legal-gold:border-amber-200 legal-blue:border-blue-200">
+          <form onSubmit={handleSubmit} className="flex space-x-2">
+            <Textarea 
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Type your message..."
+              className="resize-none min-h-[40px] max-h-[120px]"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSubmit(e);
+                }
+              }}
+            />
+            <div className="flex flex-col space-y-2">
+              <Button 
+                type="submit"
+                size="icon"
+                className={cn(
+                  "h-10 w-10 rounded-full",
+                  "bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600",
+                  "legal-gold:bg-amber-600 legal-gold:hover:bg-amber-700",
+                  "legal-blue:bg-blue-600 legal-blue:hover:bg-blue-700"
+                )}
+              >
+                <Send size={18} />
+              </Button>
+              <Button 
+                type="button"
+                size="icon"
+                variant={isListening ? "destructive" : "outline"}
+                className="h-10 w-10 rounded-full"
+                onClick={toggleListening}
+              >
+                {isListening ? <MicOff size={18} /> : <Mic size={18} />}
+              </Button>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={cn("", className)}>
       {/* Floating chat button */}
       <button
         onClick={toggleChat}
         className={cn(
-          "fixed bottom-6 right-6 w-14 h-14 rounded-full bg-indigo-600 text-white flex items-center justify-center shadow-lg hover:bg-indigo-700 transition-all z-20",
-          "animate-pulse-subtle"
+          "fixed bottom-6 left-6 w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all z-20 backdrop-blur-sm border",
+          "animate-pulse-subtle transform-gpu hover:scale-110",
+          "bg-indigo-600 hover:bg-indigo-700 text-white border-indigo-500",
+          "dark:bg-indigo-500 dark:hover:bg-indigo-600 dark:border-indigo-400",
+          "legal-gold:bg-amber-600 legal-gold:hover:bg-amber-700 legal-gold:border-amber-500",
+          "legal-blue:bg-blue-600 legal-blue:hover:bg-blue-700 legal-blue:border-blue-500"
         )}
         aria-label="Chat with legal assistant"
       >
-        <Bot size={24} />
+        <MessageSquare size={24} />
       </button>
 
       {/* Chat window */}
       {isOpen && (
         <div 
           className={cn(
-            "fixed bottom-24 right-6 w-80 sm:w-96 h-[500px] bg-white dark:bg-gray-900 rounded-lg shadow-xl z-20 flex flex-col overflow-hidden glass border border-gray-200 dark:border-gray-800",
-            "animate-fadeIn"
+            "fixed bottom-24 left-6 w-80 sm:w-96 h-[500px] rounded-lg shadow-xl z-20 flex flex-col overflow-hidden glass border",
+            "animate-fadeIn",
+            "bg-white/90 dark:bg-gray-900/90 border-gray-200 dark:border-gray-800",
+            "legal-gold:bg-amber-50/90 legal-gold:border-amber-200",
+            "legal-blue:bg-blue-50/90 legal-blue:border-blue-200"
           )}
           ref={chatContainerRef}
         >
           {/* Chat header */}
-          <div className="p-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between bg-gradient-to-r from-indigo-600 to-blue-600 text-white">
+          <div className={cn(
+            "p-4 border-b flex items-center justify-between",
+            "bg-gradient-to-r text-white",
+            "from-indigo-600 to-blue-600 border-b-indigo-700",
+            "dark:from-indigo-500 dark:to-blue-500 dark:border-b-indigo-600",
+            "legal-gold:from-amber-600 legal-gold:to-amber-500 legal-gold:border-b-amber-700",
+            "legal-blue:from-blue-600 legal-blue:to-blue-500 legal-blue:border-b-blue-700"
+          )}>
             <div className="flex items-center space-x-2">
-              <Avatar className="h-8 w-8 bg-indigo-100 text-indigo-600">
+              <Avatar className={cn(
+                "h-8 w-8",
+                "bg-indigo-100 text-indigo-600",
+                "legal-gold:bg-amber-100 legal-gold:text-amber-600",
+                "legal-blue:bg-blue-100 legal-blue:text-blue-600"
+              )}>
                 <Bot size={18} />
               </Avatar>
               <div>
                 <h3 className="font-medium text-sm">Legal Assistant</h3>
-                <p className="text-xs text-indigo-100">Always here to help</p>
+                <p className={cn(
+                  "text-xs",
+                  "text-indigo-100",
+                  "legal-gold:text-amber-100",
+                  "legal-blue:text-blue-100"
+                )}>Always here to help</p>
               </div>
             </div>
             <button 
               onClick={toggleChat}
-              className="text-indigo-100 hover:text-white"
+              className={cn(
+                "hover:text-white",
+                "text-indigo-100",
+                "legal-gold:text-amber-100",
+                "legal-blue:text-blue-100"
+              )}
             >
               <X size={18} />
             </button>
@@ -227,32 +373,32 @@ const Chatbot: React.FC<ChatbotProps> = ({ className }) => {
                   className={cn(
                     "max-w-[80%] rounded-lg p-3",
                     message.sender === 'user' 
-                      ? "bg-indigo-600 text-white rounded-br-none" 
-                      : "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-bl-none"
+                      ? "bg-indigo-600 text-white rounded-br-none dark:bg-indigo-500 legal-gold:bg-amber-600 legal-blue:bg-blue-600" 
+                      : "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-bl-none legal-gold:bg-amber-100 legal-gold:text-amber-900 legal-blue:bg-blue-100 legal-blue:text-blue-900"
                   )}
                 >
                   <div className="flex items-start">
                     {message.sender === 'bot' && (
-                      <Avatar className="h-6 w-6 mr-2 mt-0.5 bg-indigo-100 text-indigo-600">
+                      <Avatar className="h-6 w-6 mr-2 mt-0.5 bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-300 legal-gold:bg-amber-100 legal-gold:text-amber-600 legal-blue:bg-blue-100 legal-blue:text-blue-600">
                         <Bot size={14} />
                       </Avatar>
                     )}
                     <div>
                       <p className={cn(
                         "text-sm",
-                        message.sender === 'user' ? "text-white" : "text-gray-900 dark:text-gray-100"
+                        message.sender === 'user' ? "text-white" : "text-gray-900 dark:text-gray-100 legal-gold:text-amber-900 legal-blue:text-blue-900"
                       )}>
                         {message.text}
                       </p>
                       <span className={cn(
                         "text-xs mt-1 block",
-                        message.sender === 'user' ? "text-indigo-200" : "text-gray-500 dark:text-gray-400"
+                        message.sender === 'user' ? "text-indigo-200 dark:text-indigo-100 legal-gold:text-amber-200 legal-blue:text-blue-200" : "text-gray-500 dark:text-gray-400 legal-gold:text-amber-500 legal-blue:text-blue-500"
                       )}>
                         {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </span>
                     </div>
                     {message.sender === 'user' && (
-                      <Avatar className="h-6 w-6 ml-2 mt-0.5 bg-indigo-100 text-indigo-600">
+                      <Avatar className="h-6 w-6 ml-2 mt-0.5 bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-300 legal-gold:bg-amber-100 legal-gold:text-amber-600 legal-blue:bg-blue-100 legal-blue:text-blue-600">
                         <User size={14} />
                       </Avatar>
                     )}
@@ -263,15 +409,15 @@ const Chatbot: React.FC<ChatbotProps> = ({ className }) => {
             
             {isBotTyping && (
               <div className="flex justify-start">
-                <div className="bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg rounded-bl-none p-3 max-w-[80%]">
+                <div className="bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg rounded-bl-none p-3 max-w-[80%] legal-gold:bg-amber-100 legal-gold:text-amber-900 legal-blue:bg-blue-100 legal-blue:text-blue-900">
                   <div className="flex items-center space-x-2">
-                    <Avatar className="h-6 w-6 bg-indigo-100 text-indigo-600">
+                    <Avatar className="h-6 w-6 bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-300 legal-gold:bg-amber-100 legal-gold:text-amber-600 legal-blue:bg-blue-100 legal-blue:text-blue-600">
                       <Bot size={14} />
                     </Avatar>
                     <div className="flex space-x-1">
-                      <div className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                      <div className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                      <div className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                      <div className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce legal-gold:bg-amber-400 legal-blue:bg-blue-400" style={{ animationDelay: '0ms' }}></div>
+                      <div className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce legal-gold:bg-amber-400 legal-blue:bg-blue-400" style={{ animationDelay: '150ms' }}></div>
+                      <div className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce legal-gold:bg-amber-400 legal-blue:bg-blue-400" style={{ animationDelay: '300ms' }}></div>
                     </div>
                   </div>
                 </div>
@@ -282,7 +428,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ className }) => {
           </div>
 
           {/* Chat input */}
-          <div className="p-4 border-t border-gray-200 dark:border-gray-800">
+          <div className="p-4 border-t border-gray-200 dark:border-gray-800 legal-gold:border-amber-200 legal-blue:border-blue-200">
             <form onSubmit={handleSubmit} className="flex space-x-2">
               <Textarea 
                 value={input}
@@ -300,7 +446,12 @@ const Chatbot: React.FC<ChatbotProps> = ({ className }) => {
                 <Button 
                   type="submit"
                   size="icon"
-                  className="h-10 w-10 rounded-full bg-indigo-600 hover:bg-indigo-700"
+                  className={cn(
+                    "h-10 w-10 rounded-full",
+                    "bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600",
+                    "legal-gold:bg-amber-600 legal-gold:hover:bg-amber-700",
+                    "legal-blue:bg-blue-600 legal-blue:hover:bg-blue-700"
+                  )}
                 >
                   <Send size={18} />
                 </Button>

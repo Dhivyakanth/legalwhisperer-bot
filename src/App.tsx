@@ -7,6 +7,16 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "./components/UI/ThemeProvider";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+import "@fontsource/crimson-pro/400.css";
+import "@fontsource/crimson-pro/700.css";
+import "@fontsource/inter-tight/400.css";
+import "@fontsource/inter-tight/500.css";
+import "@fontsource/inter-tight/600.css";
+import "@fontsource/cormorant-garamond/400.css";
+import "@fontsource/cormorant-garamond/600.css";
+import "@fontsource/cormorant-garamond/700.css";
+import "@fontsource/playfair-display/400.css";
+import "@fontsource/playfair-display/700.css";
 
 const queryClient = new QueryClient();
 
