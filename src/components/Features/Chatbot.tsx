@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar } from '@/components/ui/avatar';
-import { Bot, Send, User, Mic, MicOff, X, MessageSquare } from 'lucide-react';
+import { Bot, Send, User, Mic, MicOff, X, MessageCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface Message {
@@ -101,6 +101,10 @@ const Chatbot: React.FC<ChatbotProps> = ({ className, fullscreen = false }) => {
     
     if (userInputLower.includes('lawyer') || userInputLower.includes('attorney')) {
       return "While I can provide general legal information, I recommend consulting with a licensed attorney for specific legal advice. Would you like information about finding a lawyer?";
+    }
+    
+    if (userInputLower.includes('get started') || userInputLower.includes('begin') || userInputLower.includes('how to use')) {
+      return "To get started with our platform, you can explore our four main features: Legal Chatbot, Document Analysis, FIR Generator, and Video Generator. Click on any feature card to open it in fullscreen mode. Is there a specific feature you'd like to learn more about?";
     }
     
     return "I understand you're looking for legal assistance. Could you provide more details about your situation so I can better help you?";
@@ -288,13 +292,14 @@ const Chatbot: React.FC<ChatbotProps> = ({ className, fullscreen = false }) => {
     );
   }
 
+  // For fixed button on page
   return (
     <div className={cn("", className)}>
-      {/* Floating chat button */}
+      {/* Floating chat button - Moved to right side */}
       <button
         onClick={toggleChat}
         className={cn(
-          "fixed bottom-6 left-6 w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all z-20 backdrop-blur-sm border",
+          "fixed bottom-6 right-6 w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all z-20 backdrop-blur-sm border",
           "animate-pulse-subtle transform-gpu hover:scale-110",
           "bg-indigo-600 hover:bg-indigo-700 text-white border-indigo-500",
           "dark:bg-indigo-500 dark:hover:bg-indigo-600 dark:border-indigo-400",
@@ -303,14 +308,14 @@ const Chatbot: React.FC<ChatbotProps> = ({ className, fullscreen = false }) => {
         )}
         aria-label="Chat with legal assistant"
       >
-        <MessageSquare size={24} />
+        <MessageCircle size={24} />
       </button>
 
       {/* Chat window */}
       {isOpen && (
         <div 
           className={cn(
-            "fixed bottom-24 left-6 w-80 sm:w-96 h-[500px] rounded-lg shadow-xl z-20 flex flex-col overflow-hidden glass border",
+            "fixed bottom-24 right-6 w-80 sm:w-96 h-[500px] rounded-lg shadow-xl z-20 flex flex-col overflow-hidden glass border",
             "animate-fadeIn",
             "bg-white/90 dark:bg-gray-900/90 border-gray-200 dark:border-gray-800",
             "legal-gold:bg-amber-50/90 legal-gold:border-amber-200",

@@ -1,7 +1,6 @@
 
 import React, { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { 
   ArrowRight, 
   MessageSquare, 
@@ -23,25 +22,120 @@ import FIRGenerator from '@/components/Features/FIRGenerator';
 import VideoGenerator from '@/components/Features/VideoGenerator';
 import { ThemeToggle } from '@/components/UI/ThemeToggle';
 import { cn } from '@/lib/utils';
+import { useNavigate } from 'react-router-dom';
+import { useToast } from '@/components/ui/use-toast';
 
 const Index: React.FC = () => {
-  const [openFeature, setOpenFeature] = useState<string | null>(null);
+  const [activeFeature, setActiveFeature] = useState<string | null>(null);
+  const { toast } = useToast();
+  const navigate = useNavigate();
 
   // Ref for the features section
   const featuresRef = useRef<HTMLDivElement>(null);
   
-  // Function to toggle feature dialogs
-  const toggleFeature = (feature: string) => {
-    if (openFeature === feature) {
-      setOpenFeature(null);
-    } else {
-      setOpenFeature(feature);
-    }
+  // Function to open a feature in fullscreen
+  const openFeature = (feature: string) => {
+    setActiveFeature(feature);
+  };
+  
+  // Function to close the active feature
+  const closeFeature = () => {
+    setActiveFeature(null);
   };
   
   // Scroll to features section
   const scrollToFeatures = () => {
     featuresRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  // Handle "Get Started Now" button click
+  const handleGetStarted = () => {
+    toast({
+      title: "Welcome to Legal AI Assistant!",
+      description: "We're here to help with all your legal needs. Start exploring our features or chat with our AI assistant.",
+      duration: 5000,
+    });
+    scrollToFeatures();
+  };
+  
+  // Render the fullscreen feature component
+  const renderFeatureContent = () => {
+    switch (activeFeature) {
+      case 'chatbot':
+        return (
+          <div className="fixed inset-0 bg-white dark:bg-gray-900 legal-gold:bg-amber-50 legal-blue:bg-blue-50 z-50 flex flex-col animate-fadeIn">
+            <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800 legal-gold:border-amber-200 legal-blue:border-blue-200">
+              <h3 className="text-xl font-bold">Legal Chatbot</h3>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={closeFeature}
+              >
+                <X size={20} />
+              </Button>
+            </div>
+            <div className="flex-1 overflow-auto">
+              <Chatbot fullscreen />
+            </div>
+          </div>
+        );
+      case 'document-analyzer':
+        return (
+          <div className="fixed inset-0 bg-white dark:bg-gray-900 legal-gold:bg-amber-50 legal-blue:bg-blue-50 z-50 flex flex-col animate-fadeIn">
+            <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800 legal-gold:border-amber-200 legal-blue:border-blue-200">
+              <h3 className="text-xl font-bold">Document Analysis</h3>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={closeFeature}
+              >
+                <X size={20} />
+              </Button>
+            </div>
+            <div className="flex-1 overflow-auto p-4">
+              <DocumentAnalyzer />
+            </div>
+          </div>
+        );
+      case 'fir-generator':
+        return (
+          <div className="fixed inset-0 bg-white dark:bg-gray-900 legal-gold:bg-amber-50 legal-blue:bg-blue-50 z-50 flex flex-col animate-fadeIn">
+            <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800 legal-gold:border-amber-200 legal-blue:border-blue-200">
+              <h3 className="text-xl font-bold">FIR Generator</h3>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={closeFeature}
+              >
+                <X size={20} />
+              </Button>
+            </div>
+            <div className="flex-1 overflow-auto p-4">
+              <FIRGenerator />
+            </div>
+          </div>
+        );
+      case 'video-generator':
+        return (
+          <div className="fixed inset-0 bg-white dark:bg-gray-900 legal-gold:bg-amber-50 legal-blue:bg-blue-50 z-50 flex flex-col animate-fadeIn">
+            <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800 legal-gold:border-amber-200 legal-blue:border-blue-200">
+              <h3 className="text-xl font-bold">Video Generator</h3>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={closeFeature}
+              >
+                <X size={20} />
+              </Button>
+            </div>
+            <div className="flex-1 overflow-auto p-4">
+              <VideoGenerator />
+            </div>
+          </div>
+        );
+      default:
+        return null;
+    }
   };
   
   return (
@@ -79,8 +173,9 @@ const Index: React.FC = () => {
                     variant="outline" 
                     size="lg"
                     className="legal-gold:border-amber-500 legal-gold:text-amber-700 legal-blue:border-blue-500 legal-blue:text-blue-700"
+                    onClick={handleGetStarted}
                   >
-                    Learn More
+                    Get Started Now
                   </Button>
                 </div>
               </SectionTransition>
@@ -112,137 +207,53 @@ const Index: React.FC = () => {
             </SectionTransition>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
-              <Dialog open={openFeature === 'chatbot'} onOpenChange={(open) => setOpenFeature(open ? 'chatbot' : null)}>
-                <DialogTrigger asChild>
-                  <div onClick={() => toggleFeature('chatbot')}>
-                    <SectionTransition effect="fade" delay={100}>
-                      <FeatureCard 
-                        icon={<MessageSquare size={24} className="law-scale-animation" />}
-                        title="Legal Chatbot"
-                        description="Get instant legal advice and information through our AI-powered chatbot assistant."
-                        active={openFeature === 'chatbot'}
-                        className="hover:translate-y-[-5px] transition-transform duration-300 hover:shadow-lg cursor-pointer transform-gpu"
-                      />
-                    </SectionTransition>
-                  </div>
-                </DialogTrigger>
-                <DialogContent className="max-w-4xl w-[90vw] h-[80vh] p-0 overflow-hidden">
-                  <div className="w-full h-full flex flex-col">
-                    <div className="flex items-center justify-between p-4 border-b">
-                      <h3 className="text-xl font-bold">Legal Chatbot</h3>
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        onClick={() => setOpenFeature(null)}
-                      >
-                        <X size={20} />
-                      </Button>
-                    </div>
-                    <div className="flex-1 overflow-auto p-4">
-                      <Chatbot className="h-full" />
-                    </div>
-                  </div>
-                </DialogContent>
-              </Dialog>
+              <div onClick={() => openFeature('chatbot')}>
+                <SectionTransition effect="fade" delay={100}>
+                  <FeatureCard 
+                    icon={<MessageSquare size={24} className="law-scale-animation" />}
+                    title="Legal Chatbot"
+                    description="Get instant legal advice and information through our AI-powered chatbot assistant."
+                    active={activeFeature === 'chatbot'}
+                    className="hover:translate-y-[-5px] transition-transform duration-300 hover:shadow-lg cursor-pointer transform-gpu"
+                  />
+                </SectionTransition>
+              </div>
               
-              <Dialog open={openFeature === 'document-analyzer'} onOpenChange={(open) => setOpenFeature(open ? 'document-analyzer' : null)}>
-                <DialogTrigger asChild>
-                  <div onClick={() => toggleFeature('document-analyzer')}>
-                    <SectionTransition effect="fade" delay={200}>
-                      <FeatureCard 
-                        icon={<FileText size={24} className="law-scale-animation" />}
-                        title="Document Analysis"
-                        description="Upload and analyze legal documents to understand implications and potential courses of action."
-                        active={openFeature === 'document-analyzer'}
-                        className="hover:translate-y-[-5px] transition-transform duration-300 hover:shadow-lg cursor-pointer transform-gpu"
-                      />
-                    </SectionTransition>
-                  </div>
-                </DialogTrigger>
-                <DialogContent className="max-w-4xl w-[90vw] h-[80vh] p-0 overflow-hidden">
-                  <div className="w-full h-full flex flex-col">
-                    <div className="flex items-center justify-between p-4 border-b">
-                      <h3 className="text-xl font-bold">Document Analysis</h3>
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        onClick={() => setOpenFeature(null)}
-                      >
-                        <X size={20} />
-                      </Button>
-                    </div>
-                    <div className="flex-1 overflow-auto p-4">
-                      <DocumentAnalyzer />
-                    </div>
-                  </div>
-                </DialogContent>
-              </Dialog>
+              <div onClick={() => openFeature('document-analyzer')}>
+                <SectionTransition effect="fade" delay={200}>
+                  <FeatureCard 
+                    icon={<FileText size={24} className="law-scale-animation" />}
+                    title="Document Analysis"
+                    description="Upload and analyze legal documents to understand implications and potential courses of action."
+                    active={activeFeature === 'document-analyzer'}
+                    className="hover:translate-y-[-5px] transition-transform duration-300 hover:shadow-lg cursor-pointer transform-gpu"
+                  />
+                </SectionTransition>
+              </div>
               
-              <Dialog open={openFeature === 'fir-generator'} onOpenChange={(open) => setOpenFeature(open ? 'fir-generator' : null)}>
-                <DialogTrigger asChild>
-                  <div onClick={() => toggleFeature('fir-generator')}>
-                    <SectionTransition effect="fade" delay={300}>
-                      <FeatureCard 
-                        icon={<AlertTriangle size={24} className="gavel-animation" />}
-                        title="FIR Generator"
-                        description="Create accurate and detailed First Information Reports based on incident details."
-                        active={openFeature === 'fir-generator'}
-                        className="hover:translate-y-[-5px] transition-transform duration-300 hover:shadow-lg cursor-pointer transform-gpu"
-                      />
-                    </SectionTransition>
-                  </div>
-                </DialogTrigger>
-                <DialogContent className="max-w-4xl w-[90vw] h-[80vh] p-0 overflow-hidden">
-                  <div className="w-full h-full flex flex-col">
-                    <div className="flex items-center justify-between p-4 border-b">
-                      <h3 className="text-xl font-bold">FIR Generator</h3>
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        onClick={() => setOpenFeature(null)}
-                      >
-                        <X size={20} />
-                      </Button>
-                    </div>
-                    <div className="flex-1 overflow-auto p-4">
-                      <FIRGenerator />
-                    </div>
-                  </div>
-                </DialogContent>
-              </Dialog>
+              <div onClick={() => openFeature('fir-generator')}>
+                <SectionTransition effect="fade" delay={300}>
+                  <FeatureCard 
+                    icon={<AlertTriangle size={24} className="gavel-animation" />}
+                    title="FIR Generator"
+                    description="Create accurate and detailed First Information Reports based on incident details."
+                    active={activeFeature === 'fir-generator'}
+                    className="hover:translate-y-[-5px] transition-transform duration-300 hover:shadow-lg cursor-pointer transform-gpu"
+                  />
+                </SectionTransition>
+              </div>
               
-              <Dialog open={openFeature === 'video-generator'} onOpenChange={(open) => setOpenFeature(open ? 'video-generator' : null)}>
-                <DialogTrigger asChild>
-                  <div onClick={() => toggleFeature('video-generator')}>
-                    <SectionTransition effect="fade" delay={400}>
-                      <FeatureCard 
-                        icon={<FileVideo size={24} className="law-scale-animation" />}
-                        title="Video Generator"
-                        description="Generate visual reconstructions of incidents for better understanding and presentation."
-                        active={openFeature === 'video-generator'}
-                        className="hover:translate-y-[-5px] transition-transform duration-300 hover:shadow-lg cursor-pointer transform-gpu"
-                      />
-                    </SectionTransition>
-                  </div>
-                </DialogTrigger>
-                <DialogContent className="max-w-4xl w-[90vw] h-[80vh] p-0 overflow-hidden">
-                  <div className="w-full h-full flex flex-col">
-                    <div className="flex items-center justify-between p-4 border-b">
-                      <h3 className="text-xl font-bold">Video Generator</h3>
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        onClick={() => setOpenFeature(null)}
-                      >
-                        <X size={20} />
-                      </Button>
-                    </div>
-                    <div className="flex-1 overflow-auto p-4">
-                      <VideoGenerator />
-                    </div>
-                  </div>
-                </DialogContent>
-              </Dialog>
+              <div onClick={() => openFeature('video-generator')}>
+                <SectionTransition effect="fade" delay={400}>
+                  <FeatureCard 
+                    icon={<FileVideo size={24} className="law-scale-animation" />}
+                    title="Video Generator"
+                    description="Generate visual reconstructions of incidents for better understanding and presentation."
+                    active={activeFeature === 'video-generator'}
+                    className="hover:translate-y-[-5px] transition-transform duration-300 hover:shadow-lg cursor-pointer transform-gpu"
+                  />
+                </SectionTransition>
+              </div>
             </div>
           </div>
         </section>
@@ -337,6 +348,7 @@ const Index: React.FC = () => {
                       "legal-gold:from-amber-600 legal-gold:to-amber-500",
                       "legal-blue:from-blue-600 legal-blue:to-blue-500"
                     )}
+                    onClick={handleGetStarted}
                   >
                     Get Started Now
                   </Button>
@@ -356,8 +368,11 @@ const Index: React.FC = () => {
       
       <Footer />
       
-      {/* Fixed chatbot button */}
-      <Chatbot />
+      {/* Render active feature in fullscreen */}
+      {renderFeatureContent()}
+      
+      {/* Fixed chatbot button (moved to right side) */}
+      <Chatbot className="fixed-right" />
     </div>
   );
 };

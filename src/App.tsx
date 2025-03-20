@@ -7,6 +7,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "./components/UI/ThemeProvider";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+
+// Correctly import the installed fonts
 import "@fontsource/crimson-pro/400.css";
 import "@fontsource/crimson-pro/700.css";
 import "@fontsource/inter-tight/400.css";
